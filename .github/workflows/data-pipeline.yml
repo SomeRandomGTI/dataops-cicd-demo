@@ -1,0 +1,76 @@
+name: Data CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  # 1️⃣ VALIDATE
+  validate:
+    name: Validate SQL & ETL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate SQL files
+        run: |
+          echo "Validating SQL scripts..."
+          ls db/
+
+  # 2️⃣ DEV
+  deploy-dev:
+    name: Deploy to DEV
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to DEV
+        run: |
+          echo "Deploying to DEV"
+          echo "DB: $DB_NAME"
+
+  # 3️⃣ INT
+  deploy-int:
+    name: Deploy to INT
+    runs-on: ubuntu-latest
+    needs: deploy-dev
+    environment: int
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to INT
+        run: |
+          echo "Deploying to INT"
+          echo "DB: $DB_NAME"
+
+  # 4️⃣ QA
+  deploy-qa:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    needs: deploy-int
+    environment: qa
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to QA
+        run: |
+          echo "Deploying to QA"
+          echo "DB: $DB_NAME"
+
+  # 5️⃣ PROD (Approval Required)
+  deploy-prod:
+    name: Deploy to PROD
+    runs-on: ubuntu-latest
+    needs: deploy-qa
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to PROD
+        run: |
+          echo "Deploying to PROD"
+          echo "DB: $DB_NAME"
